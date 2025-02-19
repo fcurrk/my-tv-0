@@ -1,4 +1,5 @@
 import java.io.BufferedReader
+import java.io.File
 
 plugins {
     alias(libs.plugins.android.application)
@@ -10,7 +11,7 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.lizongying.mytv0"
+        applicationId = "com.fcurrk.mytv0"
         minSdk = 21
         targetSdk = 35
         versionCode = getVersionCode()
@@ -64,7 +65,11 @@ fun getVersionCode(): Int {
 }
 
 fun getVersionName(): String {
-    return getTag().ifEmpty {
+    return try {
+        val json = File("./version.json").readText()
+        val versionName = json.substringAfter("\"version_name\":").substringBefore("}").trim().replace("\"", "")
+        versionName.replace("v", "") 
+    } catch (e: Exception) {
         "0.0.0-1"
     }
 }
