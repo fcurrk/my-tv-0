@@ -45,21 +45,31 @@ android {
     }
 }
 
-fun getTag(): String {
-    return try {
-        val process = Runtime.getRuntime().exec("git describe --tags --always")
-        process.waitFor()
-        process.inputStream.bufferedReader().use(BufferedReader::readText).trim().removePrefix("v")
-    } catch (_: Exception) {
-        ""
-    }
-}
+//fun getTag(): String {
+//    return try {
+//        val process = Runtime.getRuntime().exec("git describe --tags --always")
+//        process.waitFor()
+//        process.inputStream.bufferedReader().use(BufferedReader::readText).trim().removePrefix("v")
+//    } catch (_: Exception) {
+//        ""
+//    }
+//}
+
+//fun getVersionCode(): Int {
+//    return try {
+//        val arr = (getTag().replace(".", " ").replace("-", " ") + " 0").split(" ")
+//        arr[0].toInt() * 16777216 + arr[1].toInt() * 65536 + arr[2].toInt() * 256 + arr[3].toInt()
+//    } catch (_: Exception) {
+//        1
+//    }
+//}
 
 fun getVersionCode(): Int {
     return try {
-        val arr = (getTag().replace(".", " ").replace("-", " ") + " 0").split(" ")
-        arr[0].toInt() * 16777216 + arr[1].toInt() * 65536 + arr[2].toInt() * 256 + arr[3].toInt()
-    } catch (_: Exception) {
+        val json = File("./version.json").readText()
+        val versionCode = json.substringAfter("\"version_code\":").substringBefore(",").trim()
+        versionCode.toInt()
+    } catch (e: Exception) {
         1
     }
 }
