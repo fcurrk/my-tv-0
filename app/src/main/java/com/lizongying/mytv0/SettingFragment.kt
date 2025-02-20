@@ -134,10 +134,10 @@ class SettingFragment : Fragment() {
             mainActivity.settingActive()
         }
 
-//        binding.checkVersion.setOnClickListener {
-//            requestInstallPermissions()
-//            mainActivity.settingActive()
-//        }
+        binding.checkVersion.setOnClickListener {
+            requestInstallPermissions()
+            mainActivity.settingActive()
+        }
 
         binding.confirmConfig.setOnClickListener {
             val sourcesFragment = SourcesFragment()
@@ -197,7 +197,7 @@ class SettingFragment : Fragment() {
             binding.remoteSettings,
             binding.confirmConfig,
             binding.clear,
-//            binding.checkVersion,
+            binding.checkVersion,
             binding.exit,
 //            binding.appreciate,
         )) {
