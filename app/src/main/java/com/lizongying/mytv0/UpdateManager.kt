@@ -44,7 +44,7 @@ class UpdateManager(
                 Log.i(TAG, "versionCode $versionCode ${release?.version_code}")
                 if (release?.version_code != null) {
                     if (release?.version_code!! >= versionCode) {
-                        text = "最新版本：${release?.version_name}"
+                        text = "最新版本：${release?.version_name}-${release?.version_code}-${versionCode}"
                         update = true
                     } else {
                         text = "已是最新版本，不需要更新"
