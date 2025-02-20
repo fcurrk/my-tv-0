@@ -120,6 +120,7 @@
                 android:text="@string/exit"
                 android:textSize="14sp"
                 />
+<!--
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/appreciate"
                 android:layout_width="100dp"
@@ -130,6 +131,7 @@
                 android:text="@string/appreciate"
                 android:textSize="14sp"
                 />
+-->
         </LinearLayout>
 
         <androidx.appcompat.widget.SwitchCompat

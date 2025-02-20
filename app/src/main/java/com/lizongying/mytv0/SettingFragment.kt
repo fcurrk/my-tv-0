@@ -51,7 +51,7 @@ class SettingFragment : Fragment() {
         _binding = SettingBinding.inflate(inflater, container, false)
 
         binding.versionName.text = "v${context.appVersionName}"
-        binding.version.text = "https://github.com/lizongying/my-tv-0"
+        binding.version.text = "Powered by lizongying"
 
         val switchChannelReversal = _binding?.switchChannelReversal
         switchChannelReversal?.isChecked = SP.channelReversal
@@ -146,16 +146,16 @@ class SettingFragment : Fragment() {
             mainActivity.settingActive()
         }
 
-        binding.appreciate.setOnClickListener {
-            val imageModalFragment = ModalFragment()
+//        binding.appreciate.setOnClickListener {
+//            val imageModalFragment = ModalFragment()
 
-            val args = Bundle()
-            args.putInt(ModalFragment.KEY_DRAWABLE_ID, R.drawable.appreciate)
-            imageModalFragment.arguments = args
+//            val args = Bundle()
+//            args.putInt(ModalFragment.KEY_DRAWABLE_ID, R.drawable.appreciate)
+//            imageModalFragment.arguments = args
 
-            imageModalFragment.show(requireFragmentManager(), ModalFragment.TAG)
-            mainActivity.settingActive()
-        }
+//            imageModalFragment.show(requireFragmentManager(), ModalFragment.TAG)
+//            mainActivity.settingActive()
+//        }
 
         binding.setting.setOnClickListener {
             hideSelf()
@@ -199,7 +199,7 @@ class SettingFragment : Fragment() {
             binding.clear,
             binding.checkVersion,
             binding.exit,
-            binding.appreciate,
+//            binding.appreciate,
         )) {
             i.layoutParams.width = btnWidth
             i.textSize = txtTextSize

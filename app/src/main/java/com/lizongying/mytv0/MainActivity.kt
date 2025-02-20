@@ -11,16 +11,20 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.GestureDetector
+import android.view.Gravity
 import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
+import android.widget.PopupWindow
+import android.widget.RelativeLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import com.lizongying.mytv0.databinding.SettingsWebBinding
 import java.util.Locale
 import kotlin.math.abs
 
@@ -158,7 +162,7 @@ class MainActivity : AppCompatActivity() {
                             SP.channel = 0
                             0
                         }
-                        Log.i(TAG, "播放默認頻道")
+                        Log.i(TAG, "播放默认频道")
                         viewModel.groupModel.getPosition(position)
                     } else {
 //                if (SP.position < 0 || SP.position >= TVList.groupModel.getAllList()!!
@@ -170,13 +174,13 @@ class MainActivity : AppCompatActivity() {
 //                    // R.string.play_last_channel.showToast()
 //                    SP.position
 //                }
-                        Log.i(TAG, "播放上次頻道")
+                        Log.i(TAG, "播放上次频道")
                         viewModel.groupModel.getCurrent()
                     }
                     viewModel.groupModel.setPositionPlaying()
                     viewModel.groupModel.getCurrentList()
                         ?.let {
-                            Log.i(TAG, "當前組 ${it.getName()}")
+                            Log.i(TAG, "当前組 ${it.getName()}")
                             it.setPositionPlaying()
                         }
                     tvModel?.setReady()
@@ -255,7 +259,7 @@ class MainActivity : AppCompatActivity() {
                 if (tvModel.ready.value != null
 //                    && tvModel.tv.id == TVList.positionValue
                 ) {
-                    Log.i(TAG, "${tvModel.tv.title} 嘗試播放")
+                    Log.i(TAG, "${tvModel.tv.title} 尝试播放")
                     hideFragment(errorFragment)
                     showFragment(loadingFragment)
                     playerFragment.play(tvModel)
@@ -639,6 +643,34 @@ class MainActivity : AppCompatActivity() {
         showFragment(settingFragment)
 
         settingActive()
+    }
+
+    fun showWebViewPopup(url: String) {
+        val binding = SettingsWebBinding.inflate(layoutInflater)
+
+        val webView = binding.web
+        webView.settings.javaScriptEnabled = true
+        webView.loadUrl(url)
+
+        val popupWindow = PopupWindow(
+            binding.root,
+            RelativeLayout.LayoutParams.MATCH_PARENT,
+            RelativeLayout.LayoutParams.MATCH_PARENT
+        )
+
+        popupWindow.inputMethodMode = PopupWindow.INPUT_METHOD_NEEDED
+        popupWindow.isFocusable = true
+        popupWindow.isTouchable = true
+
+        popupWindow.isClippingEnabled = false
+
+        popupWindow.showAtLocation(window.decorView, Gravity.CENTER, 0, 0)
+
+        webView.requestFocus()
+
+        binding.close.setOnClickListener {
+            popupWindow.dismiss()
+        }
     }
 
     fun onKey(keyCode: Int): Boolean {

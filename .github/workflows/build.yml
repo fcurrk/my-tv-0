@@ -1,9 +1,6 @@
 name: build
 
-on:
-  push:
-    tags:
-      - 'v*'
+on: workflow_dispatch
 
 permissions:
   contents: write
@@ -29,14 +26,35 @@ jobs:
           output=$(./history.sh)
           echo "$output" > history.md
 
+      - name: Get version from version.json
+        id: get_version
+        run: |
+          VERSION=$(grep -oP '"version_name": *"\K[^"]+' ./version.json)
+          echo "version_name=$VERSION" >> $GITHUB_ENV
+
+      - name: Get existing release
+        id: get_release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          existing_release=$(gh release view ${{ env.version_name }} --json id --jq '.id' || echo "")
+          echo "existing_release=$existing_release" >> $GITHUB_ENV
+
+      - name: Delete existing release
+        if: env.existing_release != ''
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release delete ${{ env.version_name }} --yes
+
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
+          tag_name: ${{ env.version_name }}
+          release_name: ${{ env.version_name }}
           draft: false
           prerelease: false
           body_path: history.md
@@ -60,8 +78,8 @@ jobs:
       - name: Set Asset Name
         id: set_asset_name
         run: |
-          VERSION_WITHOUT_V=$(echo '${{ github.ref_name }}' | sed 's/^v//')
-          echo "asset_name=my-tv-0.${VERSION_WITHOUT_V}.apk" >> $GITHUB_ENV
+          VERSION_WITHOUT_V=$(echo '${{ env.version_name }}' | sed 's/^v//')
+          echo "asset_name=my-tv-0-mod.${VERSION_WITHOUT_V}.apk" >> $GITHUB_ENV
 
       - name: Upload Release Asset
         uses: actions/upload-release-asset@v1
