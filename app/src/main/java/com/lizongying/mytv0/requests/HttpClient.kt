@@ -21,8 +21,8 @@ import javax.net.ssl.X509TrustManager
 
 object HttpClient {
     const val TAG = "HttpClient"
-    private const val HOST = "https://www.gitlink.org.cn/lizongying/my-tv-0/raw/"
-    const val DOWNLOAD_HOST = "https://www.gitlink.org.cn/lizongying/my-tv-0/releases/download/"
+    private const val HOST = "https://gh.beta.gs/https://raw.githubusercontent.com/fcurrk/my-tv-0/"
+    const val DOWNLOAD_HOST = "https://gh.beta.gs/https://github.com/fcurrk/my-tv-0/releases/download/"
 
     private val clientCache = mutableMapOf<String?, OkHttpClient>()
 

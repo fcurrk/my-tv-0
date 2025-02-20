@@ -63,7 +63,7 @@ class UpdateManager(
     }
 
     private fun startDownload(release: ReleaseResponse) {
-        val apkName = "my-tv-0"
+        val apkName = "my-tv-0-mod"
         val apkFileName = "$apkName-${release.version_name}.apk"
         val downloadManager =
             context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
