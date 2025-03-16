@@ -59,6 +59,13 @@ object Utils {
         ).format(Date(System.currentTimeMillis() - between))
     }
 
+    fun getDateFormat(format: String, seconds: Int): String {
+        return SimpleDateFormat(
+            format,
+            Locale.CHINA
+        ).format(Date(seconds * 1000L))
+    }
+
     fun getDateTimestamp(): Long {
         return (System.currentTimeMillis() - between) / 1000
     }
@@ -141,7 +148,10 @@ object Utils {
     }
 
     fun formatUrl(url: String): String {
-        if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("file://") || url.startsWith("socks://") || url.startsWith("socks5://")) {
+        if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("file://") || url.startsWith(
+                "socks://"
+            ) || url.startsWith("socks5://")
+        ) {
             return url
         }
 
@@ -155,7 +165,6 @@ object Utils {
     fun getUrls(url: String): List<String> {
         return if (url.startsWith("https://raw.githubusercontent.com") || url.startsWith("https://github.com")) {
             listOf(
-                "https://gh.beta.gs/",
                 "https://gh.llkk.cc/",
                 "https://github.moeyy.xyz/",
                 "https://mirror.ghproxy.com/",

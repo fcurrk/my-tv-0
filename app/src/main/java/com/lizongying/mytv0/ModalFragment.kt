@@ -1,10 +1,10 @@
 package com.lizongying.mytv0
 
-import android.content.res.Configuration
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -28,6 +28,7 @@ class ModalFragment : DialogFragment() {
         dialog?.window?.apply {
             addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
             decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+
             setBackgroundDrawableResource(android.R.color.transparent)
 
             setLayout(binding.modalImage.layoutParams.width, WindowManager.LayoutParams.WRAP_CONTENT)
@@ -57,17 +58,6 @@ class ModalFragment : DialogFragment() {
                 .into(binding.modalImage)
             binding.modalText.text = u.removePrefix("http://")
             binding.modalText.visibility = View.VISIBLE
-            if (!isTV()) {
-                binding.modal.setOnClickListener {
-                    try {
-                        val mainActivity = (activity as MainActivity)
-                        mainActivity.showWebViewPopup(u)
-                        handler.postDelayed(hideAppreciateModal, 0)
-                    } catch (e: Exception) {
-                        Log.e(TAG, "onViewCreated", e)
-                    }
-                }
-            }
         } else {
             Glide.with(requireContext())
                 .load(arguments?.getInt(KEY_DRAWABLE_ID))
@@ -82,11 +72,6 @@ class ModalFragment : DialogFragment() {
         if (!this.isHidden) {
             this.dismiss()
         }
-    }
-
-    private fun isTV(): Boolean {
-        val uiMode = resources.configuration.uiMode and Configuration.UI_MODE_TYPE_MASK
-        return uiMode == Configuration.UI_MODE_TYPE_TELEVISION
     }
 
     override fun onDestroyView() {

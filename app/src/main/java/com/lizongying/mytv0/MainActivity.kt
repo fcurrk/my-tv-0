@@ -11,20 +11,16 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.GestureDetector
-import android.view.Gravity
 import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
-import android.widget.PopupWindow
-import android.widget.RelativeLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import com.lizongying.mytv0.databinding.SettingsWebBinding
 import java.util.Locale
 import kotlin.math.abs
 
@@ -40,6 +36,7 @@ class MainActivity : AppCompatActivity() {
     private var timeFragment = TimeFragment()
     private var menuFragment = MenuFragment()
     private var settingFragment = SettingFragment()
+    private var programFragment = ProgramFragment()
 
     private val handler = Handler(Looper.myLooper()!!)
     private val delayHideMenu = 10 * 1000L
@@ -162,7 +159,7 @@ class MainActivity : AppCompatActivity() {
                             SP.channel = 0
                             0
                         }
-                        Log.i(TAG, "播放默认频道")
+                        Log.i(TAG, "播放默認頻道")
                         viewModel.groupModel.getPosition(position)
                     } else {
 //                if (SP.position < 0 || SP.position >= TVList.groupModel.getAllList()!!
@@ -174,13 +171,13 @@ class MainActivity : AppCompatActivity() {
 //                    // R.string.play_last_channel.showToast()
 //                    SP.position
 //                }
-                        Log.i(TAG, "播放上次频道")
+                        Log.i(TAG, "播放上次頻道")
                         viewModel.groupModel.getCurrent()
                     }
                     viewModel.groupModel.setPositionPlaying()
                     viewModel.groupModel.getCurrentList()
                         ?.let {
-                            Log.i(TAG, "当前組 ${it.getName()}")
+                            Log.i(TAG, "當前組 ${it.getName()}")
                             it.setPositionPlaying()
                         }
                     tvModel?.setReady()
@@ -259,7 +256,7 @@ class MainActivity : AppCompatActivity() {
                 if (tvModel.ready.value != null
 //                    && tvModel.tv.id == TVList.positionValue
                 ) {
-                    Log.i(TAG, "${tvModel.tv.title} 尝试播放")
+                    Log.i(TAG, "${tvModel.tv.title} 嘗試播放")
                     hideFragment(errorFragment)
                     showFragment(loadingFragment)
                     playerFragment.play(tvModel)
@@ -292,7 +289,7 @@ class MainActivity : AppCompatActivity() {
         return super.onTouchEvent(event)
     }
 
-    private inner class GestureListener(private val context: Context) :
+    private inner class GestureListener(context: Context) :
         GestureDetector.SimpleOnGestureListener() {
 
         private var screenWidth = windowManager.defaultDisplay.width
@@ -321,7 +318,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         override fun onLongPress(e: MotionEvent) {
-            Log.i(TAG, "onLongPress")
+            showProgram()
         }
 
         override fun onFling(
@@ -563,10 +560,10 @@ class MainActivity : AppCompatActivity() {
 
     private val hideSetting = Runnable {
         hideFragment(settingFragment)
-        addTimeFragment()
+        showTimeFragment()
     }
 
-    fun addTimeFragment() {
+    fun showTimeFragment() {
         if (SP.time) {
             showFragment(timeFragment)
         } else {
@@ -591,6 +588,10 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun channelUp() {
+        if (programFragment.isAdded && !programFragment.isHidden) {
+            return
+        }
+
         if ((!menuFragment.isAdded || menuFragment.isHidden) && (!settingFragment.isAdded || settingFragment.isHidden)) {
             if (SP.channelReversal) {
                 next()
@@ -601,6 +602,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun channelDown() {
+        if (programFragment.isAdded && !programFragment.isHidden) {
+            return
+        }
+
         if ((!menuFragment.isAdded || menuFragment.isHidden) && (!settingFragment.isAdded || settingFragment.isHidden)) {
             if (SP.channelReversal) {
                 prev()
@@ -616,9 +621,19 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
+        if (programFragment.isAdded && !programFragment.isHidden) {
+            hideFragment(programFragment)
+            return
+        }
+
         if (settingFragment.isAdded && !settingFragment.isHidden) {
             hideFragment(settingFragment)
-            addTimeFragment()
+            showTimeFragment()
+            return
+        }
+
+        if (channelFragment.isAdded && channelFragment.isVisible) {
+            channelFragment.hideSelf()
             return
         }
 
@@ -636,6 +651,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showSetting() {
+        if (programFragment.isAdded && !programFragment.isHidden) {
+            return
+        }
+
         if (menuFragment.isAdded && !menuFragment.isHidden) {
             return
         }
@@ -645,32 +664,32 @@ class MainActivity : AppCompatActivity() {
         settingActive()
     }
 
-    fun showWebViewPopup(url: String) {
-        val binding = SettingsWebBinding.inflate(layoutInflater)
-
-        val webView = binding.web
-        webView.settings.javaScriptEnabled = true
-        webView.loadUrl(url)
-
-        val popupWindow = PopupWindow(
-            binding.root,
-            RelativeLayout.LayoutParams.MATCH_PARENT,
-            RelativeLayout.LayoutParams.MATCH_PARENT
-        )
-
-        popupWindow.inputMethodMode = PopupWindow.INPUT_METHOD_NEEDED
-        popupWindow.isFocusable = true
-        popupWindow.isTouchable = true
-
-        popupWindow.isClippingEnabled = false
-
-        popupWindow.showAtLocation(window.decorView, Gravity.CENTER, 0, 0)
-
-        webView.requestFocus()
-
-        binding.close.setOnClickListener {
-            popupWindow.dismiss()
+    private fun showProgram() {
+        if (menuFragment.isAdded && !menuFragment.isHidden) {
+            return
         }
+
+        if (settingFragment.isAdded && !settingFragment.isHidden) {
+            return
+        }
+
+        viewModel.groupModel.getCurrent()?.let {
+            if (it.epgValue.isEmpty()) {
+                R.string.epg_is_empty.showToast()
+                return
+            }
+        }
+
+        showFragment(programFragment)
+    }
+
+    private fun hideProgram(): Boolean {
+        if (!programFragment.isAdded || programFragment.isHidden) {
+            return false
+        }
+
+        hideFragment(programFragment)
+        return true
     }
 
     fun onKey(keyCode: Int): Boolean {
@@ -786,14 +805,11 @@ class MainActivity : AppCompatActivity() {
             }
 
             KeyEvent.KEYCODE_DPAD_LEFT -> {
-                if (!settingFragment.isAdded || settingFragment.isHidden) {
-                    showFragment(menuFragment)
-                }
+                showProgram()
             }
 
             KeyEvent.KEYCODE_DPAD_RIGHT -> {
                 showSetting()
-//                return true
             }
         }
         return false
@@ -812,7 +828,7 @@ class MainActivity : AppCompatActivity() {
 
         isSafeToPerformFragmentTransactions = true
 
-        addTimeFragment()
+        showTimeFragment()
     }
 
     override fun onPause() {

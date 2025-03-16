@@ -84,7 +84,7 @@ class MainViewModel : ViewModel() {
             SP.configUrl?.let {
                 if (it.startsWith("http")) {
                     viewModelScope.launch {
-                        Log.i(TAG, "updateConfig $it")
+                        Log.i(TAG, "update config url: $it")
                         importFromUrl(it)
                         updateEPG()
                     }
@@ -117,12 +117,13 @@ class MainViewModel : ViewModel() {
         cacheChannels = getCache()
 
         if (cacheChannels.isEmpty()) {
+            Log.i(TAG, "cacheChannels isEmpty")
             cacheChannels =
                 context.resources.openRawResource(DEFAULT_CHANNELS_FILE).bufferedReader()
                     .use { it.readText() }
         }
 
-        Log.i(TAG, "cacheChannels $cacheChannels")
+        Log.i(TAG, "cacheChannels $cacheFile $cacheChannels")
 
         try {
             str2Channels(cacheChannels)
@@ -246,13 +247,15 @@ class MainViewModel : ViewModel() {
 
                     if (response.isSuccessful) {
                         if (readEPG(response.bodyAlias()!!.byteStream())) {
+                            Log.i(TAG, "EPG $a success")
                             success = true
                         }
                     } else {
                         Log.e(TAG, "EPG $a ${response.codeAlias()}")
                     }
                 } catch (e: Exception) {
-                    Log.e(TAG, "EPG request error: $a", e)
+//                    Log.e(TAG, "EPG $a error", e)
+                    Log.e(TAG, "EPG $a error")
                 }
             }
 
@@ -344,7 +347,9 @@ class MainViewModel : ViewModel() {
     fun tryStr2Channels(str: String, file: File?, url: String, id: String = "") {
         try {
             if (str2Channels(str)) {
+                Log.i(TAG, "write to cacheFile $cacheFile $str")
                 cacheFile!!.writeText(str)
+                Log.i(TAG, "cacheFile ${getCache()}")
                 cacheChannels = str
                 if (url.isNotEmpty()) {
                     SP.configUrl = url
@@ -358,11 +363,13 @@ class MainViewModel : ViewModel() {
                 }
                 _channelsOk.value = true
                 R.string.channel_import_success.showToast()
+                Log.i(TAG, "channel import success")
             } else {
                 R.string.channel_import_error.showToast()
+                Log.w(TAG, "channel import error")
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.e(TAG, "tryStr2Channels", e)
             file?.deleteOnExit()
             R.string.channel_read_error.showToast()
         }
@@ -407,6 +414,7 @@ class MainViewModel : ViewModel() {
                 val lines = string.lines()
                 val nameRegex = Regex("""tvg-name="([^"]+)"""")
                 val logRegex = Regex("""tvg-logo="([^"]+)"""")
+                val numRegex = Regex("""tvg-chno="([^"]+)"""")
                 val epgRegex = Regex("""x-tvg-url="([^"]+)"""")
                 val groupRegex = Regex("""group-title="([^"]+)"""")
 
@@ -422,7 +430,6 @@ class MainViewModel : ViewModel() {
                     if (trimmedLine.startsWith("#EXTM3U")) {
                         epgUrl = epgRegex.find(trimmedLine)?.groupValues?.get(1)?.trim()
                     } else if (trimmedLine.startsWith("#EXTINF")) {
-                        Log.i(TAG, "TV $tv")
                         val key = tv.group + tv.name
                         if (key.isNotEmpty()) {
                             tvMap[key] =
@@ -434,6 +441,8 @@ class MainViewModel : ViewModel() {
                         var name = nameRegex.find(info.first())?.groupValues?.get(1)?.trim()
                         tv.name = if (name.isNullOrEmpty()) tv.title else name
                         tv.logo = logRegex.find(info.first())?.groupValues?.get(1)?.trim() ?: ""
+                        tv.number =
+                            numRegex.find(info.first())?.groupValues?.get(1)?.trim()?.toInt() ?: -1
                         tv.group = groupRegex.find(info.first())?.groupValues?.get(1)?.trim() ?: ""
                     } else if (trimmedLine.startsWith("#EXTVLCOPT:http-")) {
                         val keyValue =
@@ -476,6 +485,7 @@ class MainViewModel : ViewModel() {
                         t0.headers,
                         t0.group,
                         SourceType.UNKNOWN,
+                        t0.number,
                         emptyList(),
                     )
                     l.add(t1)
@@ -525,12 +535,14 @@ class MainViewModel : ViewModel() {
                         emptyMap(),
                         channelGroup,
                         SourceType.UNKNOWN,
+                        -1,
                         emptyList(),
                     )
 
                     l.add(tv)
                 }
                 list = l
+                Log.d(TAG, "导入频道 $list")
                 Log.i(TAG, "导入频道 ${list.size}")
             }
         }
