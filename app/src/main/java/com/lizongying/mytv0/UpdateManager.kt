@@ -62,7 +62,7 @@ class UpdateManager(
                 release = getRelease()
                 Log.i(TAG, "versionCode $versionCode ${release?.version_code}")
                 if (release?.version_code != null) {
-                    if (release?.version_code!! >= versionCode) {
+                    if (release?.version_code!! > versionCode) {
                         text = "最新版本：${release?.version_name}"
                         update = true
                     } else {
@@ -203,7 +203,7 @@ class UpdateManager(
         private const val TAG = "UpdateManager"
         private const val BUFFER_SIZE = 8192
         private const val VERSION_URL =
-            "https://mirror.ghproxy.com/raw.githubusercontent.com/lizongying/my-tv-0/kitkat/version.json"
+            "https://gh.beta.gs/https://raw.githubusercontent.com/fcurrk/my-tv-0/kitkat/version.json"
     }
 
     override fun onConfirm() {
