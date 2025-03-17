@@ -39,22 +39,20 @@ class UpdateManager(
 
         for (u in urls) {
             Log.i(TAG, "request $u")
-            withContext(Dispatchers.IO) {
-                try {
-                    val request = okhttp3.Request.Builder().url(u).build()
-                    val response = withContext(Dispatchers.IO) {HttpClient.okHttpClient.newCall(request).execute()}
+            try {
+                val request = okhttp3.Request.Builder().url(u).build()
+                val response = withContext(Dispatchers.IO) {HttpClient.okHttpClient.newCall(request).execute()}
 
-                    if (response.isSuccessful) {
-                        response.bodyAlias()?.let {
-                            return gson.fromJson(it.string(), ReleaseResponse::class.java)
-                        }
-                    } else {
-                        Log.e(TAG, "getRelease $u ${response.codeAlias()}")
+                if (response.isSuccessful) {
+                    response.bodyAlias()?.let {
+                        return gson.fromJson(it.string(), ReleaseResponse::class.java)
                     }
-                } catch (e: Exception) {
-//                    Log.e(TAG, "getRelease $u error", e)
-                    Log.e(TAG, "getRelease $u error")
+                } else {
+                    Log.e(TAG, "getRelease $u ${response.codeAlias()}")
                 }
+            } catch (e: Exception) {
+//                Log.e(TAG, "getRelease $u error", e)
+                Log.e(TAG, "getRelease $u error")
             }
         }
 
