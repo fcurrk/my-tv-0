@@ -83,6 +83,7 @@ class UpdateManager(
             } catch (e: Exception) {
                 Log.e(TAG, "Error occurred: ${e.message}", e)
             }
+            text = "最新版本：${release?.version_name} versionCode： $versionCode"
             updateUI(text, update)
         }
     }
