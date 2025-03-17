@@ -76,7 +76,7 @@ fun getVersionCode(): Int {
 fun getVersionName(): String {
     return try {
         val json = File("./version.json").readText()
-        val versionName = json.substringAfter("\"version_name\":").substringBefore("}").trim().replace("\"", "")
+        val versionName = json.substringAfter("\"version_name\":").substringBefore(",").trim().replace("\"", "")
         versionName.replace("v", "") 
     } catch (e: Exception) {
         "0.0.0-1"
