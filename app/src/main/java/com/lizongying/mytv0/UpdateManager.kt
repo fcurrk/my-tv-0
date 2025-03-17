@@ -42,14 +42,11 @@ class UpdateManager(
             withContext(Dispatchers.IO) {
                 try {
                     val request = okhttp3.Request.Builder().url(u).build()
-                    val response = HttpClient.okHttpClient.newCall(request).execute()
+                    val response = withContext(Dispatchers.IO) {HttpClient.okHttpClient.newCall(request).execute()}
 
                     if (response.isSuccessful) {
                         response.bodyAlias()?.let {
-                            return@withContext gson.fromJson(
-                                it.string(),
-                                ReleaseResponse::class.java
-                            )
+                            return gson.fromJson(it.string(), ReleaseResponse::class.java)
                         }
                     } else {
                         Log.e(TAG, "getRelease $u ${response.codeAlias()}")
