@@ -104,7 +104,7 @@ class TVModel(var tv: TV) : ViewModel() {
         _ready.value = true
     }
 
-    private var userAgent = "okHttp/Mod-1.2.0.1"
+    private var userAgent = ""
 
     private var _httpDataSource: DataSource.Factory? = null
     private var _mediaItem: MediaItem? = null
