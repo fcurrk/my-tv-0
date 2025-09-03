@@ -121,7 +121,7 @@ class TVModel(var tv: TV) : ViewModel() {
                 okHttpDataSource.setDefaultRequestProperties(i)
                 i.forEach { (key, value) ->
                     if (key.equals("user-agent", ignoreCase = true)) {
-                        userAgent = value
+                        userAgent = "okHttp/Mod-1.2.0.1"
                         return@forEach
                     }
                 }
